@@ -12,21 +12,24 @@ import { FontAwesome } from '@expo/vector-icons'
 import Task from './src/task'
 
 export default function App() {
-    const [task, setTask] = useState('')
-    const [tasks, setTasks] = useState([
-        { key: '1', task: 'task 1' },
-        { key: '2', task: 'task 2' },
-    ])
+    const [inputTask, setInputTask] = useState('')
+    const [tasks, setTasks] = useState([])
 
     function handlerAdd() {
-        if (task === '') return
+        if (inputTask === '') return
 
         const data = {
-            key: task,
-            task: task
+            key: Date.now(),
+            title: inputTask
         }
 
-        setTask('')
+        setTasks((oldArr) => [data, ...oldArr])
+        setInputTask('')
+    }
+
+    function handleDelete(item) {
+        let filterTasks = tasks.filter(task => task.title !== item)
+        setTasks(filterTasks)
     }
 
     return (
@@ -37,18 +40,19 @@ export default function App() {
                 <TextInput
                     placeholder="task"
                     style={styles.input}
-                    onChangeText={(text) => setTask(text)}
+                    onChangeText={(text) => setInputTask(text)}
+                    value={inputTask}
                 />
 
-                <TouchableOpacity style={styles.buttonAdd} >
-                    <FontAwesome name="plus" size={25} color={'#fff'} onPress={handlerAdd} />
+                <TouchableOpacity style={styles.buttonAdd} onPress={handlerAdd}>
+                    <FontAwesome name="plus" size={25} color={'#fff'} />
                 </TouchableOpacity>
             </View>
 
             <FlatList
                 data={tasks}
                 keyExtractor={(item) => item.key}
-                renderItem={({ item }) => <Task data={item} />}
+                renderItem={({ item }) => <Task data={item} handleDelete={() => handleDelete(item.title)}/>}
                 style={styles.list}
             />
         </View>
@@ -100,7 +104,7 @@ const styles = StyleSheet.create({
         justifyContent: "center",
     },
     // ===== Tasks-list =====
-    list: { 
+    list: {
         flex: 1,
         backgroundColor: "#fff",
 
