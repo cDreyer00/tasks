@@ -13,14 +13,17 @@ import Task from './src/task'
 
 export default function App() {
     const [inputTask, setInputTask] = useState('')
-    const [tasks, setTasks] = useState([])
+    const [tasks, setTasks] = useState([
+        // { key: 1, title: 'task 1', check: true },
+    ])
 
     function handlerAdd() {
         if (inputTask === '') return
 
         const data = {
             key: Date.now(),
-            title: inputTask
+            title: inputTask,
+            check: false,
         }
 
         setTasks((oldArr) => [data, ...oldArr])
@@ -30,6 +33,12 @@ export default function App() {
     function handleDelete(item) {
         let filterTasks = tasks.filter(task => task.title !== item)
         setTasks(filterTasks)
+    }
+
+    function handleCheck(item){
+        item.check = !item.check
+        let newTasks = tasks.map(task => task.title === item.title ? item : task)
+        setTasks(newTasks)
     }
 
     return (
@@ -52,7 +61,7 @@ export default function App() {
             <FlatList
                 data={tasks}
                 keyExtractor={(item) => item.key}
-                renderItem={({ item }) => <Task data={item} handleDelete={() => handleDelete(item.title)}/>}
+                renderItem={({ item }) => <Task data={item} handleDelete={() => handleDelete(item.title)} handleCheck={() => handleCheck(item)} />}
                 style={styles.list}
             />
         </View>
