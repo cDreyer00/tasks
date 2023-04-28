@@ -1,23 +1,43 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
     View,
     Text,
     StyleSheet,
     TouchableOpacity,
     TextInput,
-    FlatList
+    FlatList,
 } from "react-native";
+
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
 import { FontAwesome } from '@expo/vector-icons'
 import Task from './src/task'
 
 export default function App() {
     const [inputTask, setInputTask] = useState('')
-    const [tasks, setTasks] = useState([
-        // { key: 1, title: 'task 1', check: true },
-    ])
+    const [tasks, setTasks] = useState([])
 
-    function handlerAdd() {
+    useEffect(() => {
+        console.log("use effect")
+        retrieveData()
+    }, [])
+
+    const retrieveData = async () => {
+        const response = await AsyncStorage.getItem('tasks')
+        const storageTasks = await JSON.parse(response)
+
+        if (storageTasks) {
+            setTasks(storageTasks)
+        }
+    }
+
+    const saveData = async () => {
+        await AsyncStorage.setItem('tasks', JSON.stringify(tasks))
+    }
+
+    // retrieveData()
+
+    async function handlerAdd() {
         if (inputTask === '') return
 
         const data = {
@@ -28,17 +48,23 @@ export default function App() {
 
         setTasks((oldArr) => [data, ...oldArr])
         setInputTask('')
+
+        saveData();
     }
 
-    function handleDelete(item) {
+    async function handleDelete(item) {
         let filterTasks = tasks.filter(task => task.title !== item)
         setTasks(filterTasks)
+
+        saveData();
     }
 
-    function handleCheck(item){
+    async function handleCheck(item) {
         item.check = !item.check
         let newTasks = tasks.map(task => task.title === item.title ? item : task)
         setTasks(newTasks)
+
+        saveData();
     }
 
     return (
