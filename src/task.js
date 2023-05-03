@@ -43,5 +43,4 @@ const styles = (color) => StyleSheet.create({
         right: 0,
         width: 25,
     }
-
 })

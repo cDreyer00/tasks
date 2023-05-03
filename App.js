@@ -13,29 +13,36 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import { FontAwesome } from '@expo/vector-icons'
 import Task from './src/task'
 
+import wait from 'cdreyer-utilities'
+
 export default function App() {
     const [inputTask, setInputTask] = useState('')
     const [tasks, setTasks] = useState([])
 
     useEffect(() => {
-        console.log("use effect")
-        retrieveData()
-    }, [])
+        async function fetchData() {
+            await retrieveData()
+        }
+        fetchData();
+    }, []) 
 
+    const handleSetTasks = async (newTasks) => {
+        await setTasks(newTasks)
+        await saveData(newTasks)
+    }
+    
     const retrieveData = async () => {
         const response = await AsyncStorage.getItem('tasks')
         const storageTasks = await JSON.parse(response)
-
+        
         if (storageTasks) {
-            setTasks(storageTasks)
+            handleSetTasks(storageTasks)
         }
     }
 
-    const saveData = async () => {
+    const saveData = async (tasks) => {
         await AsyncStorage.setItem('tasks', JSON.stringify(tasks))
     }
-
-    // retrieveData()
 
     async function handlerAdd() {
         if (inputTask === '') return
@@ -45,26 +52,19 @@ export default function App() {
             title: inputTask,
             check: false,
         }
-
-        setTasks((oldArr) => [data, ...oldArr])
+        handleSetTasks([...tasks, data])
         setInputTask('')
-
-        saveData();
     }
 
     async function handleDelete(item) {
-        let filterTasks = tasks.filter(task => task.title !== item)
-        setTasks(filterTasks)
-
-        saveData();
+        let filterTasks = tasks.filter(task => task.title !== item);
+        handleSetTasks(filterTasks)
     }
 
     async function handleCheck(item) {
         item.check = !item.check
         let newTasks = tasks.map(task => task.title === item.title ? item : task)
-        setTasks(newTasks)
-
-        saveData();
+        handleSetTasks(newTasks)
     }
 
     return (
@@ -142,7 +142,6 @@ const styles = StyleSheet.create({
     list: {
         flex: 1,
         backgroundColor: "#fff",
-
         padding: 10,
     }
 });
