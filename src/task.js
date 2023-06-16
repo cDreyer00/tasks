@@ -35,6 +35,7 @@ const styles = (color) => StyleSheet.create({
     },
     text: {
         fontSize: 16,
+        maxWidth: '80%',
     },
     deleteButton: {
         marginRight: 12,

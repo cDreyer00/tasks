@@ -13,8 +13,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import { FontAwesome } from '@expo/vector-icons'
 import Task from './src/task'
 
-import wait from 'cdreyer-utilities'
-
 export default function App() {
     const [inputTask, setInputTask] = useState('')
     const [tasks, setTasks] = useState([])
@@ -24,17 +22,17 @@ export default function App() {
             await retrieveData()
         }
         fetchData();
-    }, []) 
+    }, [])
 
     const handleSetTasks = async (newTasks) => {
         await setTasks(newTasks)
         await saveData(newTasks)
     }
-    
+
     const retrieveData = async () => {
         const response = await AsyncStorage.getItem('tasks')
         const storageTasks = await JSON.parse(response)
-        
+
         if (storageTasks) {
             handleSetTasks(storageTasks)
         }
